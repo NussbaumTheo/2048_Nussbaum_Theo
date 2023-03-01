@@ -9,7 +9,7 @@ from tkinter import *
 import tkinter.font
 
 # tableau 2 dimensions avec des mots (3x3)
-number = [[2, 2, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 0, 0, 0]]
+number = [[0, 0, 2, 0], [0, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0]]
 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
@@ -18,22 +18,7 @@ width=90 #espacement horizontal en pixels des étiquettes (remarque la taille de
 height=80 #espacement vertical en pixels des étiquettes
 
 #création d'un bibliothèque ft: Ryan Cardamone
-color = {0: "#FFFFFF",
-         2: "#FFFFFF",
-         4: "#EEEEEE",
-         8: "#FFE8F7",
-         16: "#FFDFCA",
-         32: "#FFE694",
-         64: "#F9F871",
-         128: "#FFC75F",
-         256: "#FF9671",
-         512: "#FF6F91",
-         1024: "#D65DB1",
-         2048: "#917CFA",
-         4096: "#839EFA",
-         8192: "#845EC2"}
-
-
+color = {0: "#FFFFFF", 2: "#FFFFFF", 4: "#EEEEEE", 8: "#FFE8F7", 16: "#FFDFCA", 32: "#FFE694", 64: "#F9F871", 128: "#FFC75F", 256: "#FF9671", 512: "#FF6F91", 1024: "#D65DB1", 2048: "#917CFA", 4096: "#839EFA", 8192: "#845EC2"}
 
 # Construction de la fenêtre :
 fen = Tk()
@@ -70,6 +55,87 @@ def display():
 
 #appeller la fonction display pour afficher le tableau
 display()
+
+
+# fonction pour tasser a gauche (ft : Ryan Cardamone)
+def tasse_left(event):
+    for line in range(len(number)):
+        [number[line][0], number[line][1], number[line][2], number[line][3]] = tasse_4(number[line][0], number[line][1], number[line][2], number[line][3])
+    display()
+
+# fonction pour tasser a droit
+def tasse_right(event):
+    for line in range(len(number)):
+        [number[line][3], number[line][2], number[line][1], number[line][0]] = tasse_4(number[line][3], number[line][2], number[line][1], number[line][0])
+    display()
+
+# fonction pour tasser en haut
+def tasse_up(event):
+    for col in range(len(number)):
+        [number[0][col], number[1][col], number[2][col], number[3][col]] = tasse_4(number[0][col], number[1][col], number[2][col], number[3][col])
+    display()
+
+# fonction pour tasser en bas
+def tasse_down(event):
+    for col in range(len(number)):
+        [number[3][col], number[2][col], number[1][col], number[0][col]] = tasse_4(number[3][col], number[2][col], number[1][col], number[0][col])
+    display()
+def tasse_4(a, b, c, d):
+     # ici le code va manipuler a,b,c et d
+     #ici il va enlever les 0
+    if a == 0:
+        a = b
+        b = c
+        c = d
+        d = 0
+
+    if b == 0:
+        b = c
+        c = d
+        d = 0
+
+    if c == 0:
+        c = d
+        d = 0
+
+    if a == 0:
+        a = b
+        b = c
+        c = d
+        d = 0
+
+# ici il va tasser
+    if a == b:
+        a = a * 2
+        b = c
+        c = d
+        d = 0
+
+    if b == c:
+        b = b * 2
+        c = d
+        d = 0
+
+    if c == d:
+        c = c * 2
+        d = 0
+
+    # ici on retourne les 4 valeurs en un tableau
+    temp = [a, b, c, d] #tableau temporaire de fin
+    return temp
+
+#attraper les touches
+fen.bind("<Key>",lambda event:move(event))
+def move(event):
+    touche = event.keysym
+    if touche=="w" or touche == "W" or touche =="Up":
+        tasse_up(event)
+    if touche=="a" or touche == "A" or touche =="Left":
+        tasse_left(event)
+    if touche=="s" or touche == "S" or touche =="Down":
+        tasse_down(event)
+    if touche=="d" or touche == "D" or touche =="Right":
+        tasse_right(event)
 
 #ouvrir la fenêtre
 fen.mainloop()
