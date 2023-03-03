@@ -1,15 +1,17 @@
 '''
 Auteur : Nussbaum Théo
 Date : 07..01.2023
-Version : 0.1
+Version : 0.2
 Description : recrée le jeux du 2048 en python
 '''
 #importation du module tkinter de python
 from tkinter import *
 import tkinter.font
+#importation du module tasse_4
+from python_2048.tasse_4 import tasse_4
 
 # tableau 2 dimensions avec des mots (3x3)
-number = [[0, 0, 2, 0], [0, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0]]
+number = [[64, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 16384, 32768, 65536], [131072, 262144, 524288, 1048576]]
 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
@@ -48,14 +50,16 @@ def display():
     for line in range(len(number)):
         for col in range(len(number[line])):
             var = number[line][col]
-            colors = color[var]
+            if var <= 8192:
+                colors = color[var]
+            else:
+                colors = "Red"
             labels[line][col].config(bg= colors, text=var)
             if number[line][col] == 0:
                 labels[line][col].config(text="",bg=colors)
 
 #appeller la fonction display pour afficher le tableau
 display()
-
 
 # fonction pour tasser a gauche (ft : Ryan Cardamone)
 def tasse_left(event):
@@ -80,49 +84,6 @@ def tasse_down(event):
     for col in range(len(number)):
         [number[3][col], number[2][col], number[1][col], number[0][col]] = tasse_4(number[3][col], number[2][col], number[1][col], number[0][col])
     display()
-def tasse_4(a, b, c, d):
-     # ici le code va manipuler a,b,c et d
-     #ici il va enlever les 0
-    if a == 0:
-        a = b
-        b = c
-        c = d
-        d = 0
-
-    if b == 0:
-        b = c
-        c = d
-        d = 0
-
-    if c == 0:
-        c = d
-        d = 0
-
-    if a == 0:
-        a = b
-        b = c
-        c = d
-        d = 0
-
-# ici il va tasser
-    if a == b:
-        a = a * 2
-        b = c
-        c = d
-        d = 0
-
-    if b == c:
-        b = b * 2
-        c = d
-        d = 0
-
-    if c == d:
-        c = c * 2
-        d = 0
-
-    # ici on retourne les 4 valeurs en un tableau
-    temp = [a, b, c, d] #tableau temporaire de fin
-    return temp
 
 #attraper les touches
 fen.bind("<Key>",lambda event:move(event))
