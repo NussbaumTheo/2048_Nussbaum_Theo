@@ -7,11 +7,12 @@ Description : recrée le jeux du 2048 en python
 #importation du module tkinter de python
 from tkinter import *
 import tkinter.font
+import random 
 #importation du module tasse_4
-from python_2048.tasse_4 import tasse_4
+from tasse_4 import tasse_4
 
 # tableau 2 dimensions avec des mots (3x3)
-number = [[64, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 16384, 32768, 65536], [131072, 262144, 524288, 1048576]]
+number = [[0, 0, 2, 0], [0, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0]]
 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
