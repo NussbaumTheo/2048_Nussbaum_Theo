@@ -8,8 +8,20 @@ Description : recrée le jeux du 2048 en python
 from tkinter import *
 import tkinter.font
 import random 
-#importation du module tasse_4
-from tasse_4 import tasse_4
+import copy
+
+
+#variable
+score = 0
+
+testscore = open("hightscore.txt", "r")
+if testscore.read() != "":
+    highscore = testscore.read()
+    print(highscore)
+else:
+    highscore = 0
+testscore.close()
+
 
 # tableau 2 dimensions avec des mots (3x3)
 number = [[0, 0, 2, 0], [0, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0]]
@@ -25,17 +37,19 @@ color = {0: "#FFFFFF", 2: "#FFFFFF", 4: "#EEEEEE", 8: "#FFE8F7", 16: "#FFDFCA", 
 
 # Construction de la fenêtre :
 fen = Tk()
-fen.geometry("480x480")
-fen.minsize(480,480)
-fen.maxsize(480,480)
+fen.geometry("480x500")
+fen.minsize(480,500)
+fen.maxsize(480,500)
 fen.title(' 2048 by Théo')
 fen.config(bg="#F9CB9C")
 
 #ajoute d'un titre et du score
-title = Label(text="2048",font=("Gamer", 60), bg="#F9CB9C")
+title = Label(fen, text="2048",font=("Arial", 50), bg="#F9CB9C")
 title.place(x=60,y=40)
-score = Label(text="Score: ",font=("Gamer", 15), bg="#F9CB9C")
-score.place(x=320,y=85)
+scorelbl = Label(fen, text=f"Score: {score}",font=("Arial", 10), bg="#F9CB9C")
+scorelbl.place(x=320,y=80)
+hightscorelbl = Label(fen, text=f"Highscore: {highscore}",font=("Arial", 10), bg="#F9CB9C")
+hightscorelbl.place(x=320,y=100)
 
 #Création des labels (d'abord on les définit avec =, puis on les place dans la fenêtre avec .place(x,y)
 for line in range(len(number)):
@@ -58,9 +72,95 @@ def display():
             labels[line][col].config(bg= colors, text=var)
             if number[line][col] == 0:
                 labels[line][col].config(text="",bg=colors)
+    scorelbl.config(text=f"Score: {score}")
 
 #appeller la fonction display pour afficher le tableau
 display()
+
+def spawn_tuiles():
+
+    if 0 in number[0]+number[1]+number[2]+number[3]:
+        # faire spawn deux 2 dans des case alléatoire
+        for i in range(1):
+            x = random.randint(0, 3)
+            y = random.randint(0, 3)
+            while number[x][y] != 0:
+                x = random.randint(0, 3)
+                y = random.randint(0, 3)
+            number[x][y] = 2
+            display()
+
+def new_game():
+    global number, score, highscore
+    score = 0
+    highscore = 0
+    number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    if 0 in number[0]+number[1]+number[2]+number[3]:
+        # faire spawn deux 2 dans des case alléatoire
+        for i in range(2):
+            x = random.randint(0, 3)
+            y = random.randint(0, 3)
+            while number[x][y] != 0:
+                x = random.randint(0, 3)
+                y = random.randint(0, 3)
+            number[x][y] = 2
+
+
+    display()
+    
+#création d'un boutton new_game
+bouton_new_game = Button(fen, text="New Game", command=new_game)
+bouton_new_game.place(x=205, y=465)
+
+# ici on a la fonction tasse_4 de base
+def tasse_4(a, b, c, d):
+    global score
+    #fait deplacer une case vers la "gauche", et fusionne s'il tombe sur un de même valeur
+    #reçoit 4 nombres, tasse vers le a,  et en renvoie 4
+    if a == 0:
+        a = b
+        b = c
+        c = d
+        d = 0
+        
+
+    if b == 0:
+        b = c
+        c = d
+        d = 0
+
+    if c == 0:
+        c = d
+        d = 0
+
+    if a == 0:
+        a = b
+        b = c
+        c = d
+        d = 0
+
+# ici il va tasser
+    if a == b:
+        a = a * 2
+        b = c
+        c = d
+        d = 0
+        score += a
+
+    if b == c:
+        b = b * 2
+        c = d
+        d = 0
+        score += b
+
+    if c == d:
+        c = c * 2
+        d = 0
+        score += c
+
+    # ici on retourne les 4 valeurs en un tableau
+    temp = [a, b, c, d] #tableau temporaire de fin
+    return temp
 
 # fonction pour tasser a gauche (ft : Ryan Cardamone)
 def tasse_left(event):
@@ -89,6 +189,7 @@ def tasse_down(event):
 #attraper les touches
 fen.bind("<Key>",lambda event:move(event))
 def move(event):
+    save = copy.deepcopy(number)
     touche = event.keysym
     if touche=="w" or touche == "W" or touche =="Up":
         tasse_up(event)
@@ -98,6 +199,10 @@ def move(event):
         tasse_down(event)
     if touche=="d" or touche == "D" or touche =="Right":
         tasse_right(event)
+    if save != number:
+        spawn_tuiles()
+    
+ficher = open("highscore.txt", "w")
 
 #ouvrir la fenêtre
 fen.mainloop()
