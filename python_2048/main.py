@@ -13,14 +13,7 @@ import copy
 
 #variable
 score = 0
-
-testscore = open("hightscore.txt", "r")
-if testscore.read() != "":
-    highscore = testscore.read()
-    print(highscore)
-else:
-    highscore = 0
-testscore.close()
+hightscore = 0
 
 
 # tableau 2 dimensions avec des mots (3x3)
@@ -28,6 +21,8 @@ number = [[0, 0, 2, 0], [0, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0]]
 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
+# liste de numéro de la case
+liste = [2, 2, 2, 2, 2, 2, 2, 2, 2, 4]
 
 width=90 #espacement horizontal en pixels des étiquettes (remarque la taille des labels est en caractères)
 height=80 #espacement vertical en pixels des étiquettes
@@ -48,8 +43,12 @@ title = Label(fen, text="2048",font=("Arial", 50), bg="#F9CB9C")
 title.place(x=60,y=40)
 scorelbl = Label(fen, text=f"Score: {score}",font=("Arial", 10), bg="#F9CB9C")
 scorelbl.place(x=320,y=80)
-hightscorelbl = Label(fen, text=f"Highscore: {highscore}",font=("Arial", 10), bg="#F9CB9C")
+hightscorelbl = Label(fen, text=f"Hightscore: {hightscore}",font=("Arial", 10), bg="#F9CB9C")
 hightscorelbl.place(x=320,y=100)
+
+#Lire le highscore dans highscore.txt
+fichier = open("hightscore.txt", "r")
+hightscore = fichier.readline()
 
 #Création des labels (d'abord on les définit avec =, puis on les place dans la fenêtre avec .place(x,y)
 for line in range(len(number)):
@@ -73,6 +72,7 @@ def display():
             if number[line][col] == 0:
                 labels[line][col].config(text="",bg=colors)
     scorelbl.config(text=f"Score: {score}")
+    hightscorelbl.config(text=f"Hightscore: {hightscore}")
 
 #appeller la fonction display pour afficher le tableau
 display()
@@ -87,7 +87,7 @@ def spawn_tuiles():
             while number[x][y] != 0:
                 x = random.randint(0, 3)
                 y = random.randint(0, 3)
-            number[x][y] = 2
+            number[x][y] = random.choice(liste)
             display()
 
 def new_game():
@@ -189,6 +189,7 @@ def tasse_down(event):
 #attraper les touches
 fen.bind("<Key>",lambda event:move(event))
 def move(event):
+    global score, hightscore
     save = copy.deepcopy(number)
     touche = event.keysym
     if touche=="w" or touche == "W" or touche =="Up":
@@ -201,8 +202,15 @@ def move(event):
         tasse_right(event)
     if save != number:
         spawn_tuiles()
+    print(hightscore)
+
+    #si le score en cours dépasse le highscore, on l'écrit
+    if score > int(hightscore):
+        fichier = open("hightscore.txt", "w")
+        fichier.write(str(score))
+        fichier.close()
+        hightscore = str(score)
     
-ficher = open("highscore.txt", "w")
 
 #ouvrir la fenêtre
 fen.mainloop()
