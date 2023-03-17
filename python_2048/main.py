@@ -17,34 +17,34 @@ hightscore = 0
 
 
 # tableau 2 dimensions avec des mots (3x3)
-number = [[0, 0, 2, 0], [0, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0]]
+number = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 2, 4, 8]]
 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
 # liste de numéro de la case
-liste = [2, 2, 2, 2, 2, 2, 2, 2, 2, 4]
+liste = [2048]
 
-width=90 #espacement horizontal en pixels des étiquettes (remarque la taille des labels est en caractères)
-height=80 #espacement vertical en pixels des étiquettes
+width=137 #espacement horizontal en pixels des étiquettes (remarque la taille des labels est en caractères)
+height=150 #espacement vertical en pixels des étiquettes
 
 #création d'un bibliothèque ft: Ryan Cardamone
-color = {0: "#FFFFFF", 2: "#FFFFFF", 4: "#EEEEEE", 8: "#FFE8F7", 16: "#FFDFCA", 32: "#FFE694", 64: "#F9F871", 128: "#FFC75F", 256: "#FF9671", 512: "#FF6F91", 1024: "#D65DB1", 2048: "#917CFA", 4096: "#839EFA", 8192: "#845EC2"}
+color = {0: "#FFFFFF", 2: "#B0E0E6", 4: "#ADD8E6", 8: "#87CEEB", 16: "#87CEFA", 32: "#00BFFF", 64: "#1E90FF", 128: "#1E90FF", 256: "#6495ED", 512: "#6495ED", 1024: "#6495ED", 2048: "#6495ED", 4096: "#00008B", 8192: "#000080"}
 
 # Construction de la fenêtre :
 fen = Tk()
-fen.geometry("480x500")
-fen.minsize(480,500)
-fen.maxsize(480,500)
+fen.geometry("652x770")
+fen.minsize(652,770)
+fen.maxsize(652,770)
 fen.title(' 2048 by Théo')
-fen.config(bg="#F9CB9C")
+fen.config(bg="#C4C9C7")
 
 #ajoute d'un titre et du score
-title = Label(fen, text="2048",font=("Arial", 50), bg="#F9CB9C")
+title = Label(fen, text="2048",font=("Arial", 50), bg="#C4C9C7")
 title.place(x=60,y=40)
-scorelbl = Label(fen, text=f"Score: {score}",font=("Arial", 10), bg="#F9CB9C")
-scorelbl.place(x=320,y=80)
-hightscorelbl = Label(fen, text=f"Hightscore: {hightscore}",font=("Arial", 10), bg="#F9CB9C")
-hightscorelbl.place(x=320,y=100)
+scorelbl = Label(fen, text=f"Score: {score}",font=("Arial", 10), bg="#C4C9C7")
+scorelbl.place(x=480,y=80)
+hightscorelbl = Label(fen, text=f"Hightscore: {hightscore}",font=("Arial", 10), bg="#C4C9C7")
+hightscorelbl.place(x=480,y=100)
 
 #Lire le highscore dans highscore.txt
 fichier = open("hightscore.txt", "r")
@@ -54,7 +54,7 @@ hightscore = fichier.readline()
 for line in range(len(number)):
     for col in range(len(number[line])):
         # construction de chaque label sans le placer
-        labels[line][col] = tkinter.Label (width=7, height=3, borderwidth=1, relief="solid", font=("Arial", 15))
+        labels[line][col] = tkinter.Label (width=7, height=4, borderwidth=1, relief="solid", font=("Arial", 23))
 
         # placement du label dans la fenêtre par ses coordonnées en pixels
         labels[line][col].place(x=60 + width * col, y=140 + height * line)
@@ -68,9 +68,11 @@ def display():
                 colors = color[var]
             else:
                 colors = "Red"
-            labels[line][col].config(bg= colors, text=var)
+            labels[line][col].config(bg= colors, text=var, fg="Black")
             if number[line][col] == 0:
                 labels[line][col].config(text="",bg=colors)
+            if number[line][col] >= 4096:
+                labels[line][col].config(bg=colors, text=var, fg="white")
     scorelbl.config(text=f"Score: {score}")
     hightscorelbl.config(text=f"Hightscore: {hightscore}")
 
@@ -79,6 +81,7 @@ display()
 
 def spawn_tuiles():
 
+    var = number[line][col]
     if 0 in number[0]+number[1]+number[2]+number[3]:
         # faire spawn deux 2 dans des case alléatoire
         for i in range(1):
@@ -89,6 +92,10 @@ def spawn_tuiles():
                 y = random.randint(0, 3)
             number[x][y] = random.choice(liste)
             display()
+            labels[x][y].config(text=number[x][y],bg="black", fg="white")
+            if number[line][col] == 2048:
+                win()
+                
 
 def new_game():
     global number, score, highscore
@@ -110,36 +117,34 @@ def new_game():
     
 #création d'un boutton new_game
 bouton_new_game = Button(fen, text="New Game", command=new_game)
-bouton_new_game.place(x=205, y=465)
+bouton_new_game.place(x=297, y=100)
+
+def win():
+    img = PhotoImage(file="win1.png", width=20, height=20)
+    labelsImg = Label(fen, image=img)
+    labelsImg.pack()
+    
 
 # ici on a la fonction tasse_4 de base
 def tasse_4(a, b, c, d):
     global score
     #fait deplacer une case vers la "gauche", et fusionne s'il tombe sur un de même valeur
-    #reçoit 4 nombres, tasse vers le a,  et en renvoie 4
-    if a == 0:
-        a = b
-        b = c
+    #ici on enleve les 0
+    if c == 0:
         c = d
         d = 0
-        
 
     if b == 0:
         b = c
         c = d
         d = 0
 
-    if c == 0:
-        c = d
-        d = 0
-
     if a == 0:
         a = b
         b = c
         c = d
         d = 0
-
-# ici il va tasser
+# ici il va tasser 4 nombres dans la fonction tasse_4
     if a == b:
         a = a * 2
         b = c
@@ -202,8 +207,7 @@ def move(event):
         tasse_right(event)
     if save != number:
         spawn_tuiles()
-    print(hightscore)
-
+    
     #si le score en cours dépasse le highscore, on l'écrit
     if score > int(hightscore):
         fichier = open("hightscore.txt", "w")
@@ -211,6 +215,5 @@ def move(event):
         fichier.close()
         hightscore = str(score)
     
-
 #ouvrir la fenêtre
 fen.mainloop()
