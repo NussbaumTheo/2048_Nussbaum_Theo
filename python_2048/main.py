@@ -14,7 +14,7 @@ import copy
 #variable
 score = 0
 hightscore = 0
-
+win = False
 
 # tableau 2 dimensions avec des mots (3x3)
 number = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 2, 4, 8]]
@@ -22,7 +22,7 @@ number = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 2, 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
 # liste de numéro de la case
-liste = [2048]
+liste = [2, 2, 2, 2 , 2, 2, 2, 2, 2, 4]
 
 width=137 #espacement horizontal en pixels des étiquettes (remarque la taille des labels est en caractères)
 height=150 #espacement vertical en pixels des étiquettes
@@ -45,6 +45,9 @@ scorelbl = Label(fen, text=f"Score: {score}",font=("Arial", 10), bg="#C4C9C7")
 scorelbl.place(x=480,y=80)
 hightscorelbl = Label(fen, text=f"Hightscore: {hightscore}",font=("Arial", 10), bg="#C4C9C7")
 hightscorelbl.place(x=480,y=100)
+img = PhotoImage(file="win590.png")
+
+continuer = Button(fen, text="Continuer")
 
 #Lire le highscore dans highscore.txt
 fichier = open("hightscore.txt", "r")
@@ -58,6 +61,9 @@ for line in range(len(number)):
 
         # placement du label dans la fenêtre par ses coordonnées en pixels
         labels[line][col].place(x=60 + width * col, y=140 + height * line)
+
+labelsImg = Label(fen, image=img, width=590, height=590)
+labelsImg.place_forget()
 
 #création d'un fonction d'affichage ft: John Jacard
 def display():
@@ -93,14 +99,13 @@ def spawn_tuiles():
             number[x][y] = random.choice(liste)
             display()
             labels[x][y].config(text=number[x][y],bg="black", fg="white")
-            if number[line][col] == 2048:
-                win()
+            
                 
 
 def new_game():
-    global number, score, highscore
+    global number, score, win
     score = 0
-    highscore = 0
+    win = False
     number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
     if 0 in number[0]+number[1]+number[2]+number[3]:
         # faire spawn deux 2 dans des case alléatoire
@@ -119,11 +124,15 @@ def new_game():
 bouton_new_game = Button(fen, text="New Game", command=new_game)
 bouton_new_game.place(x=297, y=100)
 
-def win():
-    img = PhotoImage(file="win1.png", width=20, height=20)
-    labelsImg = Label(fen, image=img)
-    labelsImg.pack()
-    
+def win_game():
+    global continuer
+    labelsImg.place(x=30, y = 140)
+    continuer.config(command=continu)
+    continuer.pack()
+
+def continu():
+    labelsImg.place_forget()
+    continuer.destroy()
 
 # ici on a la fonction tasse_4 de base
 def tasse_4(a, b, c, d):
@@ -194,7 +203,7 @@ def tasse_down(event):
 #attraper les touches
 fen.bind("<Key>",lambda event:move(event))
 def move(event):
-    global score, hightscore
+    global score, hightscore, win
     save = copy.deepcopy(number)
     touche = event.keysym
     if touche=="w" or touche == "W" or touche =="Up":
@@ -205,9 +214,17 @@ def move(event):
         tasse_down(event)
     if touche=="d" or touche == "D" or touche =="Right":
         tasse_right(event)
+    # faire spawn deux 2 dans des case alléatoire
     if save != number:
         spawn_tuiles()
-    
+    # ecran de win 
+    if win == False:
+        for line in range(len(number)):
+            for col in range(len(number[line])):
+                if number[line][col] == 8:
+                    win_game()
+                    win = True
+
     #si le score en cours dépasse le highscore, on l'écrit
     if score > int(hightscore):
         fichier = open("hightscore.txt", "w")
