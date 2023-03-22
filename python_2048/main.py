@@ -22,7 +22,7 @@ number = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 2, 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
 # liste de numéro de la case
-liste = [2, 2, 2, 2 , 2, 2, 2, 2, 2, 4]
+liste = [2, 2, 2, 2 , 2, 2, 2, 2, 2, 4, 2048]
 
 width=137 #espacement horizontal en pixels des étiquettes (remarque la taille des labels est en caractères)
 height=150 #espacement vertical en pixels des étiquettes
@@ -62,6 +62,7 @@ for line in range(len(number)):
         # placement du label dans la fenêtre par ses coordonnées en pixels
         labels[line][col].place(x=60 + width * col, y=140 + height * line)
 
+# création des labels pour les images
 labelsImg = Label(fen, image=img, width=590, height=590)
 labelsImg.place_forget()
 
@@ -84,6 +85,14 @@ def display():
 
 #appeller la fonction display pour afficher le tableau
 display()
+
+# bind des touches
+def bind(event):
+    fen.bind("<Key>",lambda event:move(event))
+
+# unbind des touches
+def unbind(event):
+    fen.unbind("<Key>")
 
 def spawn_tuiles():
 
@@ -116,23 +125,29 @@ def new_game():
                 x = random.randint(0, 3)
                 y = random.randint(0, 3)
             number[x][y] = 2
-
-
+    bind(None)
+    labelsImg.place_forget()
+    continuer.place_forget()
+    # rappelle de la fonction display pour afficher le tableau
     display()
     
 #création d'un boutton new_game
 bouton_new_game = Button(fen, text="New Game", command=new_game)
 bouton_new_game.place(x=297, y=100)
 
+# fonction pour afficher l'image de win + boutton continuer
 def win_game():
     global continuer
     labelsImg.place(x=30, y = 140)
     continuer.config(command=continu)
-    continuer.pack()
+    continuer.place(x=290,y=740)
+    unbind("<Key>")
 
+# fonction pour dèsafficher l'image de win + le boutton continuer
 def continu():
+    bind(None)
     labelsImg.place_forget()
-    continuer.destroy()
+    continuer.place_forget()
 
 # ici on a la fonction tasse_4 de base
 def tasse_4(a, b, c, d):
@@ -201,7 +216,7 @@ def tasse_down(event):
     display()
 
 #attraper les touches
-fen.bind("<Key>",lambda event:move(event))
+bind(None)
 def move(event):
     global score, hightscore, win
     save = copy.deepcopy(number)
@@ -217,11 +232,11 @@ def move(event):
     # faire spawn deux 2 dans des case alléatoire
     if save != number:
         spawn_tuiles()
-    # ecran de win 
+    # deffinir si on a gagné ou pas (ft Jimmy LAM)
     if win == False:
         for line in range(len(number)):
             for col in range(len(number[line])):
-                if number[line][col] == 8:
+                if number[line][col] == 2048:
                     win_game()
                     win = True
 
