@@ -259,21 +259,23 @@ def move(event):
 
     #comnptage des 0
     cont_zero = 0
+    for col in range(len(loosetable)):
+       for line in range(len(loosetable)):
+            if loosetable[line][col] == 0:
+                cont_zero += 1
     #comptage des paires
     cont_paire = 0
     for line in range(len(loosetable)):
         for col in range(len(loosetable)-1):
-            if loosetable[line][col] == loosetable[line][col + 1]:
+            if loosetable[line][col] == loosetable[line][col + 1] and loosetable[line][col]!= 0:
                 cont_paire += 1
 
     for col in range(len(loosetable)):
-        for line in range(len(loosetable)-1):
-            if loosetable[col][line] == loosetable[col][line + 1]:
+       for line in range(len(loosetable)-1):
+            if loosetable[line][col] == loosetable[line + 1][col] and loosetable[line][col]!= 0:
                 cont_paire += 1
-            if loosetable[col][line] == 0:
-                cont_zero += 1
-            if loosetable[line][col] == 0:
-                cont_zero += 1
+
+           
     print(cont_zero)
     print(cont_paire)
 
