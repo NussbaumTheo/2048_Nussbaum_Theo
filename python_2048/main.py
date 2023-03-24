@@ -15,6 +15,7 @@ import copy
 score = 0
 hightscore = 0
 win = False
+loose = False
 
 # tableau 2 dimensions avec des mots (3x3)
 number = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 2, 4, 8]]
@@ -22,7 +23,7 @@ number = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 2, 
 # tableau 2 dimensions avec des vides qui deviendront des labels.
 labels = [[None, None, None, None], [None, None, None, None], [None, None, None, None], [None, None, None, None]]
 # liste de numéro de la case
-liste = [2, 2, 2, 2 , 2, 2, 2, 2, 2, 4, 2048]
+liste = [2, 2, 2, 2 , 2, 2, 2, 2, 2, 4]
 
 width=137 #espacement horizontal en pixels des étiquettes (remarque la taille des labels est en caractères)
 height=150 #espacement vertical en pixels des étiquettes
@@ -45,8 +46,10 @@ scorelbl = Label(fen, text=f"Score: {score}",font=("Arial", 10), bg="#C4C9C7")
 scorelbl.place(x=480,y=80)
 hightscorelbl = Label(fen, text=f"Hightscore: {hightscore}",font=("Arial", 10), bg="#C4C9C7")
 hightscorelbl.place(x=480,y=100)
-img = PhotoImage(file="win590.png")
+imgwin = PhotoImage(file="win590.png")
+imgloose = PhotoImage(file="loose590.png")
 
+revoire = Button(fen, text="Revoir")
 continuer = Button(fen, text="Continuer")
 
 #Lire le highscore dans highscore.txt
@@ -63,8 +66,10 @@ for line in range(len(number)):
         labels[line][col].place(x=60 + width * col, y=140 + height * line)
 
 # création des labels pour les images
-labelsImg = Label(fen, image=img, width=590, height=590)
+labelsImg = Label(fen, image=imgwin, width=590, height=590)
 labelsImg.place_forget()
+labelsImgloose = Label(fen, image=imgloose, width=590, height=590)
+labelsImgloose.place_forget()
 
 #création d'un fonction d'affichage ft: John Jacard
 def display():
@@ -95,7 +100,6 @@ def unbind(event):
     fen.unbind("<Key>")
 
 def spawn_tuiles():
-
     var = number[line][col]
     if 0 in number[0]+number[1]+number[2]+number[3]:
         # faire spawn deux 2 dans des case alléatoire
@@ -109,8 +113,6 @@ def spawn_tuiles():
             display()
             labels[x][y].config(text=number[x][y],bg="black", fg="white")
             
-                
-
 def new_game():
     global number, score, win
     score = 0
@@ -125,9 +127,11 @@ def new_game():
                 x = random.randint(0, 3)
                 y = random.randint(0, 3)
             number[x][y] = 2
-    bind(None)
+    bind("<Key>")
     labelsImg.place_forget()
     continuer.place_forget()
+    revoire.place_forget()
+    labelsImgloose.place_forget()
     # rappelle de la fonction display pour afficher le tableau
     display()
     
@@ -143,11 +147,22 @@ def win_game():
     continuer.place(x=290,y=740)
     unbind("<Key>")
 
+def loose_game():
+    labelsImgloose.place(x=30, y = 140)
+    revoire.config(command=revoire_game)
+    revoire.place(x=290,y=740)
+    unbind("<Key>")
+    
 # fonction pour dèsafficher l'image de win + le boutton continuer
 def continu():
-    bind(None)
+    bind("<Key>")
     labelsImg.place_forget()
     continuer.place_forget()
+
+def revoire_game():
+    unbind("<Key>")
+    labelsImgloose.place_forget()
+    revoire.place_forget()
 
 # ici on a la fonction tasse_4 de base
 def tasse_4(a, b, c, d):
@@ -216,9 +231,9 @@ def tasse_down(event):
     display()
 
 #attraper les touches
-bind(None)
+bind("<Key>")
 def move(event):
-    global score, hightscore, win
+    global score, hightscore, win, loose
     save = copy.deepcopy(number)
     touche = event.keysym
     if touche=="w" or touche == "W" or touche =="Up":
@@ -239,6 +254,33 @@ def move(event):
                 if number[line][col] == 2048:
                     win_game()
                     win = True
+    # copier de du tabeleaux number
+    loosetable = copy.deepcopy(number)
+
+    #comnptage des 0
+    cont_zero = 0
+    #comptage des paires
+    cont_paire = 0
+    for line in range(len(loosetable)):
+        for col in range(len(loosetable)-1):
+            if loosetable[line][col] == loosetable[line][col + 1]:
+                cont_paire += 1
+
+    for col in range(len(loosetable)):
+        for line in range(len(loosetable)-1):
+            if loosetable[col][line] == loosetable[col][line + 1]:
+                cont_paire += 1
+            if loosetable[col][line] == 0:
+                cont_zero += 1
+            if loosetable[line][col] == 0:
+                cont_zero += 1
+    print(cont_zero)
+    print(cont_paire)
+
+    # pour perdre, il faut plus de place et plus de paires
+    if cont_paire == 0 and cont_zero == 0:
+        loose_game()
+        loose = True
 
     #si le score en cours dépasse le highscore, on l'écrit
     if score > int(hightscore):
