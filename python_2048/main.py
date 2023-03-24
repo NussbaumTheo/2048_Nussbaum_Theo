@@ -35,7 +35,7 @@ color = {0: "#FFFFFF", 2: "#B0E0E6", 4: "#ADD8E6", 8: "#87CEEB", 16: "#87CEFA", 
 fen = Tk()
 fen.geometry("652x770")
 fen.minsize(652,770)
-fen.maxsize(652,770)
+fen.maxsize(1000,770)
 fen.title(' 2048 by Théo')
 fen.config(bg="#C4C9C7")
 
@@ -48,7 +48,8 @@ hightscorelbl = Label(fen, text=f"Hightscore: {hightscore}",font=("Arial", 10), 
 hightscorelbl.place(x=480,y=100)
 imgwin = PhotoImage(file="win590.png")
 imgloose = PhotoImage(file="loose590.png")
-
+labelcheat = Label(fen, text="Tu cheat ?!", bg="#C4C9C7")
+labelcheat.place(x=800,y=400)
 revoire = Button(fen, text="Revoir")
 continuer = Button(fen, text="Continuer")
 
@@ -230,6 +231,9 @@ def tasse_down(event):
         [number[3][col], number[2][col], number[1][col], number[0][col]] = tasse_4(number[3][col], number[2][col], number[1][col], number[0][col])
     display()
 
+def cheet(event):
+    fen.geometry("1000x652")
+
 #attraper les touches
 bind("<Key>")
 def move(event):
@@ -244,6 +248,10 @@ def move(event):
         tasse_down(event)
     if touche=="d" or touche == "D" or touche =="Right":
         tasse_right(event)
+    if touche=="F9":
+        cheet(event)
+    if touche=="Escape":
+        fen.geometry("652x770")
     # faire spawn deux 2 dans des case alléatoire
     if save != number:
         spawn_tuiles()
@@ -291,5 +299,8 @@ def move(event):
         fichier.close()
         hightscore = str(score)
     
+
+#button = Button(fen, text="Cheet", command=cheet)
+#button.place(x=100, y=100)
 #ouvrir la fenêtre
 fen.mainloop()
